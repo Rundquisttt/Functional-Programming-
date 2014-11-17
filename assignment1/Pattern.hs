@@ -18,7 +18,6 @@ substitute wildcard t s = concatMap (\list -> if list == wildcard then s else [l
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 match wildcard [] _ = Just []
 match wildcard p [] = Nothing
--- match wildcard p s = orElse
 match wildcard p s
 	| (head p) == wildcard = orElse (singleWildcardMatch p s) (longerWildcardMatch p s)
 	| (head p) == (head s) = match wildcard (tail p) (tail s)
