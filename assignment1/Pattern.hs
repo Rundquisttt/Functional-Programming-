@@ -18,8 +18,11 @@ substitute wildcard t s = concatMap (\list -> if list == wildcard then s else [l
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 match wildcard [] _ = Just []
 match wildcard p [] = Nothing
-match wildcard p s = orElse
-match _ _ _ = Nothing
+-- match wildcard p s = orElse
+match wildcard p s
+	| (head p) == wildcard = orElse (singleWildcardMatch p s) (longerWildcardMatch p s)
+	| (head p) == (head s) = match wildcard (tail p) (tail s)
+	| otherwise = Nothing
 {- TO BE WRITTEN -}
 
 
@@ -66,4 +69,3 @@ transformationApply _ _ _ _ = Nothing
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply _ _ _ _ = Nothing
 {- TO BE WRITTEN -}
-
