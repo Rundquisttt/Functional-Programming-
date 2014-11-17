@@ -32,12 +32,18 @@ stateOfMind _ = return id
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-rulesApply _ = id
+rulesApply phrasePairs phrase = try (transformationsApply "*" reflect phrasePairs) phrase --byt id till reflect
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
-reflect = id
 
+reflectHelp :: String -> [(String, String)] -> String
+reflectHelp word [] = word
+reflectHelp word pairs = if(word == (fst $ head pairs)) then (snd $ head pairs) else reflectHelp word (tail pairs)
+
+reflect [] = []
+reflect phrase = reflectHelp (head phrase) reflections : reflect (tail phrase)
+						
 reflections =
   [ ("am",     "are"),
     ("was",    "were"),

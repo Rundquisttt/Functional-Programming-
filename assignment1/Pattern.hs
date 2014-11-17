@@ -59,18 +59,20 @@ matchCheck = matchTest == Just testSubstitutions
 --------------------------------------------------------
 
 -- Applying a single pattern
---transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply wildcard f str pair = mmap f1 (f f2)
+transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
+transformationApply wildcard f str pair = mmap f1 (mmap f f2)
 		    	       	   	  where f1 = substitute wildcard (snd pair)
 					  	f2 = (match wildcard (fst pair) str)
  
 --transformationApply wildcard f str pair = mmap (substitute wildcard (snd pair)) (match wildcard (fst pair) str)
 
-transformationApply _ _ _ _ = Nothing
+
 {- TO BE WRITTEN -}
 
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
-transformationsApply _ _ _ _ = Nothing
+transformationsApply _ _ [] _ = Nothing
+transformationsApply wildcard f (pair:pairs) str = orElse (transformationApply wildcard f str pair) (transformationsApply wildcard f pairs str)
+
 {- TO BE WRITTEN -}
