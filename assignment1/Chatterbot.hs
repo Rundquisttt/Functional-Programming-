@@ -25,10 +25,17 @@ type BotBrain = [(Phrase, [Phrase])]
 
 
 --------------------------------------------------------
+generatePhrasePairs :: BotBrain -> [PhrasePair]
+generatePhrasePairs botBrain = [(map2 (id, pick (0.5)) botBrainPair) | botBrainPair <- botBrain]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
-stateOfMind _ = return id
+--stateOfMind _ = return id
+--rollDice :: IO -> IO Float
+--rollDice = do
+	--		r <- randomIO :: IO Float
+		--	return r
+stateOfMind botBrain = return (rulesApply $ generatePhrasePairs botBrain)
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -104,5 +111,4 @@ reduce = reductionsApply reductions
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply _ = id
-
 
