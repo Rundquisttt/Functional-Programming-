@@ -30,20 +30,17 @@ type BotBrain = [(Phrase, [Phrase])]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
---stateOfMind _ = return id
---rollDice :: IO ()
---rollDice = do
-		--r <- randomIO :: IO Float
-		--return r
 		
 stateOfMind botBrain = do
 		r <- randomIO :: IO Float
 		let phrasePair = [(map2 (id, pick (r)) botBrainPair) | botBrainPair <- botBrain]
-		return (rulesApply phrasePair)
+		--print phrasePair
+		return $ rulesApply phrasePair
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-rulesApply phrasePairs phrase = try (transformationsApply "*" reflect phrasePairs) phrase --byt id till reflect
+
+rulesApply phrasePairs phrase = try (transformationsApply "*" reflect phrasePairs) phrase
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -87,12 +84,11 @@ prepare :: String -> Phrase
 prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|") 
 
 stringToPhrase :: [String] -> [Phrase]
-stringToPhrase stringList = [words string | string <- stringList]
+stringToPhrase stringList = [ words string | string <- stringList]
 
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
-rulesCompile stringBotBrain= [(words $ fst stringPair, stringToPhrase $ snd stringPair) | stringPair <- stringBotBrain]
---rulesCompile _ = []
+rulesCompile stringBotBrain = [map2 ((words . map toLower), stringToPhrase) pair | pair <- stringBotBrain] 
 
 --------------------------------------
 
@@ -117,4 +113,10 @@ reduce = reductionsApply reductions
 
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-reductionsApply _ = id
+reductionsApply [] phrase = phrase
+reductionsApply phrasePairs phrase = reductionsApply (tail phrasePairs) (maybe phrase id (transformationApply "*" id phrase (head phrasePairs))) --fungerar inte. Tar bara ifall det är det första ordet
+
+
+--reductionsApply phrasePairs phrase = try (transformationsApply "*" id phrasePairs) phrase
+
+
