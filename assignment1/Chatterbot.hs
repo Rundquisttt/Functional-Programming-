@@ -25,17 +25,21 @@ type BotBrain = [(Phrase, [Phrase])]
 
 
 --------------------------------------------------------
-generatePhrasePairs :: BotBrain -> [PhrasePair]
-generatePhrasePairs botBrain = [(map2 (id, pick (0.5)) botBrainPair) | botBrainPair <- botBrain]
+--generatePhrasePairs :: BotBrain -> [PhrasePair]
+--generatePhrasePairs botBrain = [(map2 (id, pick (rollDice)) botBrainPair) | botBrainPair <- botBrain]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
 --stateOfMind _ = return id
---rollDice :: IO -> IO Float
+--rollDice :: IO ()
 --rollDice = do
-	--		r <- randomIO :: IO Float
-		--	return r
-stateOfMind botBrain = return (rulesApply $ generatePhrasePairs botBrain)
+		--r <- randomIO :: IO Float
+		--return r
+		
+stateOfMind botBrain = do
+		r <- randomIO :: IO Float
+		let phrasePair = [(map2 (id, pick (r)) botBrainPair) | botBrainPair <- botBrain]
+		return (rulesApply phrasePair)
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -82,10 +86,13 @@ present = unwords
 prepare :: String -> Phrase
 prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|") 
 
+stringToPhrase :: [String] -> [Phrase]
+stringToPhrase stringList = [words string | string <- stringList]
+
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
-rulesCompile _ = []
-
+rulesCompile stringBotBrain= [(words $ fst stringPair, stringToPhrase $ snd stringPair) | stringPair <- stringBotBrain]
+--rulesCompile _ = []
 
 --------------------------------------
 
@@ -111,4 +118,3 @@ reduce = reductionsApply reductions
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply _ = id
-
