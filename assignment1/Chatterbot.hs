@@ -113,11 +113,10 @@ reduce = reductionsApply reductions
 
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-reductionsApply = fix $ try $ transformationsApply "*" id reductions
+reductionsApply reduc = fix $ try $ transformationsApply "*" id reduc
 
 --reductionsApply [] phrase = phrase
 --reductionsApply phrasePairs phrase = reductionsApply (tail phrasePairs) (maybe phrase id (transformationApply "*" id phrase (head phrasePairs))) --fungerar inte. Tar bara ifall det är det första ordet
 
 
 --reductionsApply phrasePairs phrase = try (transformationsApply "*" id phrasePairs) phrase
-
