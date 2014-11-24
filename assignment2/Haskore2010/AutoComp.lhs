@@ -16,7 +16,7 @@
 > autoComp style key chordProgression = chord [autoBass style key chordProgression, autoChord key chordProgression]
 >
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music 
-> autoBass style key chordProgression = line [cut (snd pair) (getPattern (fst pair) key style) | pair <-  chordProgression] 
+> autoBass style key chordProgression = line [cut (snd pair) (getPattern (fst pair) key style) | pair <- transposeChordProg chordProgression (-12)] 
 >													
 > 
 > getPattern :: Pitch -> Key -> BassStyle -> Music
