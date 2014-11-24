@@ -5,16 +5,13 @@
 
 > module TTLS where
 > import Haskore hiding (Key, Mode, Minor, Major)
-> import AutoBass
+> import AutoComp
 >
 > -- repeat something n times
 > times  1    m = m
 > times n m = m :+: (times (n - 1) m)
 >
-> --baseline
-> b1a = Note (C, 4) wn [] :+: Note (F, 4) hn [] :+: Note (C, 4) hn []
-> b1b = Note (G, 4) hn [] :+: Note (C, 4) hn []
-> b1 = b1a :+: times 2 b1b
+> 
 >
 > b2a = Note (C, 4) hn [] :+: Note (G, 4) hn []
 > b2 = times 4 b2a
@@ -27,20 +24,24 @@
 > v2a = Note (G, 5) qn [] :+: Note (G, 5) qn [] :+: Note (F, 5) qn [] :+: Note (F, 5) qn [] :+: Note (E, 5) qn [] :+: Note (E, 5) qn [] :+: Note (D, 5) hn []
 > v2 = times 2 v2a
 > --chordprogression
-> c1a = [((C, 4), wn),((F, 4), hn),((C, 4), hn)]
-> c1b = [((G, 4), hn),((C, 4), hn)]
+> c1a = [((C, 3), wn),((F, 3), hn),((C, 3), hn)]
+> c1b = [((G, 3), hn),((C, 3), hn)]
 > c1 = c1a ++ c1b ++ c1b
 >
-> c2a = [((C, 4), hn), ((G, 4), hn)]
+> c2a = [((C, 3), hn), ((G, 3), hn)]
 > c2 = c2a ++ c2a ++ c2a ++ c2a
 >
-> chordProgression = c1 ++ c2 ++ c1
+> twinkleChords = c1 ++ c2 ++ c1
+> twinkleMelody = v1 :+: v2 :+: v1
+> -- bassLine = autoBass Boogie (C, Major) chordProgression
+> -- chordzz = autoChord (C, Major) (transposeChordProg chordProgression 12)  
 >
+> twinkleBasic   = twinkleMelody :=: autoComp Basic (C, Major) twinkleChords
+> twinkleCalypso = twinkleMelody :=: autoComp Calypso (C, Major) twinkleChords
+> twinkleBoogie  = twinkleMelody :=: autoComp Boogie (C, Major) twinkleChords
 >
-> bassLine = autoBass Basic (C, Major) chordProgression -- (b1 :+: b2 :+: b1)  
-> mainVoice = v1 :+: v2 :+: v1
 > -- Putting it all together:
-> ttls = Instr "piano" (Tempo 2 (Phrase [Dyn SF] bassLine :=: mainVoice))
+> ttls = Instr "piano" (Tempo 2 (Phrase [Dyn SF] twinkleCalypso))
 >
 >
 > -- testing purposes
