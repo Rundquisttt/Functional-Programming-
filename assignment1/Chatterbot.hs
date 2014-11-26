@@ -38,8 +38,7 @@ stateOfMind botBrain = do
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
---går detta att göra mer point free?
-rulesApply phrasePairs = try (transformationsApply "*" reflect phrasePairs) 
+rulesApply = try . (transformationsApply "*" reflect) 
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
@@ -87,7 +86,8 @@ stringToPhrase stringList = [ words string | string <- stringList]
 
 rulesCompile :: [(String, [String])] -> BotBrain
 {- TO BE WRITTEN -}
-rulesCompile stringBotBrain = [map2 ((words . map toLower), stringToPhrase) pair | pair <- stringBotBrain] 
+--rulesCompile stringBotBrain = [map2 ((words . map toLower), stringToPhrase) pair | pair <- stringBotBrain] 
+rulesCompile = map (map2 ((words . map toLower), stringToPhrase))
 
 --------------------------------------
 

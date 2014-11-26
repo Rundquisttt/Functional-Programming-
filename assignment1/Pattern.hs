@@ -73,6 +73,5 @@ transformationApply wildcard f str pair = mmap f1 (mmap f f2)
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
 transformationsApply _ _ [] _ = Nothing
---transformationsApply wildcard f (pair:pairs) str = orElse (transformationApply wildcard f str pair) (transformationsApply wildcard f pairs str)
 transformationsApply wildcard f pairs str = foldr1 orElse $ map (transformationApply wildcard f str) pairs
 {- TO BE WRITTEN -}
