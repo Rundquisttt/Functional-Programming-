@@ -34,14 +34,12 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind botBrain = do
 		r <- randomIO :: IO Float
 		let phrasePair = map (map2 (id, pick r)) botBrain
-		--let phrasePair = [(map2 (id, pick (r)) botBrainPair) | botBrainPair <- botBrain]
-		--print phrasePair
 		return $ rulesApply phrasePair
 
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
-
-rulesApply phrasePairs phrase = try (transformationsApply "*" reflect phrasePairs) phrase
+--går detta att göra mer point free?
+rulesApply phrasePairs = try (transformationsApply "*" reflect phrasePairs) 
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
