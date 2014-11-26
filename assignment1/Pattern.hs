@@ -8,7 +8,11 @@ import Data.List
 
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
-substitute wildcard t s = concatMap (\list -> if list == wildcard then s else [list]) t
+substitute wildcard [] _ = []
+substitute wildcard (t:ts) (s:ss) 
+	| t == wildcard = (s:ss) ++ substitute wildcard ts (s:ss)
+	| otherwise = t : substitute wildcard ts (s:ss)
+substitute wildcard t [] = t
 {- TO BE WRITTEN -}
 
 
@@ -18,23 +22,21 @@ match :: Eq a => a -> [a] -> [a] -> Maybe [a]
 
 match wildcard [] [] = Just []
 match wildcard [] _ = Nothing
-match wildcard p [] = Nothing
-match wildcard p s  
-	| (head p) == wildcard 	= orElse (singleWildcardMatch p s) (longerWildcardMatch p s)
-	| (head p) == (head s) 	= match wildcard (tail p) (tail s)
+match wildcard (p:ps) [] = Nothing
+match wildcard (p:ps) (s:ss)  
+	| p == wildcard 	= orElse (singleWildcardMatch (p:ps) (s:ss)) (longerWildcardMatch (p:ps) (s:ss))
+	| p == s 	= match wildcard ps ss
 	| otherwise 			= Nothing
 {- TO BE WRITTEN -}
-
+	
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 
-singleWildcardMatch p s 
-	| match (head p) (tail p) (tail s) /= Nothing = Just [head s]
-	| otherwise = Nothing
+singleWildcardMatch (p:ps) (s:ss) = mmap (const [s]) (match p ps ss)
 {- TO BE WRITTEN -}
 
-longerWildcardMatch p s = mmap ([head s]++) (match (head p) p (tail s))
+longerWildcardMatch (p:ps) (s:ss) = mmap ([s]++) (match p (p:ps) ss)
 
 
 {- TO BE WRITTEN -}

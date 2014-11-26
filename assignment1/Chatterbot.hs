@@ -44,13 +44,13 @@ rulesApply phrasePairs phrase = try (transformationsApply "*" reflect phrasePair
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
+reflect [] = []
+reflect (phrase:phrases) = reflectHelp phrase reflections : reflect phrases
 
 reflectHelp :: String -> [(String, String)] -> String
 reflectHelp word [] = word
-reflectHelp word pairs = if(word == (fst $ head pairs)) then (snd $ head pairs) else reflectHelp word (tail pairs)
+reflectHelp word (pair:pairs) = if(word == (fst $ pair)) then (snd $ pair) else reflectHelp word pairs
 
-reflect [] = []
-reflect phrase = reflectHelp (head phrase) reflections : reflect (tail phrase)
 						
 reflections =
   [ ("am",     "are"),
@@ -115,8 +115,6 @@ reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply reduc = fix $ try $ transformationsApply "*" id reduc
 
---reductionsApply [] phrase = phrase
---reductionsApply phrasePairs phrase = reductionsApply (tail phrasePairs) (maybe phrase id (transformationApply "*" id phrase (head phrasePairs))) --fungerar inte. Tar bara ifall det är det första ordet
 
 
---reductionsApply phrasePairs phrase = try (transformationsApply "*" id phrasePairs) phrase
+
