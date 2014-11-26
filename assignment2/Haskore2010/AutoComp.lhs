@@ -30,26 +30,47 @@
 > 
 >
 > autoChord :: Key -> ChordProgression -> Music 
-> autoChord key chordProgression = line [buildChord pair key | pair <- chordProgression]
-> --autoChord key chordProgression = autoChordRecursive key chordProgression Nothing
-> --autoChordRecursive key [] previous = []
-> --autoChordRecursive key chordProgression previous = buildChord pair key previous : autoChordRecursive key $ tail chordProgression $ head chordProgression
+> --autoChord key chordProgression = line $ map (flip buildChord key) chordProgression
+> autoChord key chordProgression = line $ optimize key chordProgression Nothing where
+>	optimize key [] _ = []	
+>	optimize key (pair:chordProg) Nothing = chordToMusic (basicChord (fst pair) key) (snd pair) : optimize key chordProg (Just (basicChord (fst pair) key))
+>	optimize key (pair:chordProg) (Just prev) = chordToMusic (optimalChord (fst pair) key prev) (snd pair) : optimize key chordProg (Just (optimalChord (fst pair) key prev))
 >
-> -- buildChord :: (Pitch, Dur) -> Key -> Chord -> Chord
+>  -- help functions for optimizing the phrasing of the chords ---------------------------------------
 >
 > buildChord :: (Pitch, Dur) -> Key -> Music 
-> buildChord pair key = chord [Note (fst pair) (snd pair) [], Note (getRelPosInKey (fst pair) key 3) (snd pair) [], Note (getRelPosInKey (fst pair) key 5) (snd pair) []]
+> buildChord pair key = chord [getNote pair 0 key, getNote pair 3 key, getNote pair 7 key]
+>	where getNote pair pos key = Note (getRelPosInKey (fst pair) key pos) (snd pair) []
 >
+> --buildChord :: (Pitch, Dur) -> Key -> Chord -> Music
+> --buildChord pair key previous = chordToMusic (optimalChord (fst pair) key previous) (snd pair)
 >
-> --autoChord = buildChord pair key previous : autoChord tail chordProgression previous
+> optimalChord :: Pitch -> Key -> Chord -> Chord
+> optimalChord pit key prev = finder (basicChord pit key) (chordVariants pit key) where
+>	finder cho [] = cho
+>	finder cho (c:cs) 	| (chordDistance c prev) < (chordDistance cho prev) = finder c cs
+>						| otherwise = finder cho cs
+>
+> chordVariants :: Pitch -> Key -> [Chord]
+> chordVariants pit key = zipWith id variants $ take (length variants) $ repeat $ basicChord pit key
+> 		where 	variants = [rephraseChordDown . rephraseChordDown, rephraseChordDown, id, rephraseChordUp, rephraseChordUp . rephraseChordUp]
+> 
+> basicChord :: Pitch -> Key -> Chord
+> basicChord pit key = [getRelPosInKey pit key 1, getRelPosInKey pit key 3, getRelPosInKey pit key 5]
+>
+> rephraseChordUp, rephraseChordDown :: Chord -> Chord
+> rephraseChordUp = rotate $ trans 12
+> rephraseChordDown = reverse . (rotate $ trans (-12)) . reverse
 >
 > chordDistance :: Chord -> Chord -> Int
 > chordDistance c1 c2 = minimum $ map sum $ [map abs $ zipWith (-) c1' $ map absPitch c2 | c1' <- map (map absPitch) $ zipWith id functions $ take 3 $ repeat c1]
->		where 	functions = [id, rotate, rotate . rotate]
+>		where 	functions = [id, rotate id , (rotate id) . (rotate id)]
 >								 
 >
-> rotate ls = (tail ls) ++ [head ls]
+> rotate f (l:ls) = ls ++ [f l]
 >
+> chordToMusic :: Chord -> Dur -> Music
+> chordToMusic cho dur = chord [Note pit dur [] | pit <- cho]
 >
 > --moder, tonarter och sånt
 > getScale mode		| mode == Ionian || mode == Major 	= [0,2,4,5,7,9,11]
@@ -74,15 +95,13 @@
 > correspondingKeys :: Key -> Key -> Bool
 > correspondingKeys key1 key2 = correspondingModes (keyToNotes key1) (keyToNotes key2)
 >
-> helpF :: Key -> Pitch -> [Mode] -> Maybe Mode
-> helpF key tone [] = Nothing
-> helpF key tone modes 	| correspondingKeys (fst tone, head modes) key = Just (head modes)
->						| otherwise = helpF key tone (tail modes)
->
+> 
 >
 > getCorrespondingMode :: Pitch -> Key -> Maybe Mode
-> getCorrespondingMode tone key = helpF key tone [Ionian .. Aeolian]
->
+> getCorrespondingMode tone key = helpF key tone [Ionian .. Aeolian] where
+>			helpF key tone [] = Nothing
+>			helpF key tone modes 	| correspondingKeys (fst tone, head modes) key = Just (head modes)
+>									| otherwise = helpF key tone (tail modes)
 >
 > getRelPosInKey :: Pitch -> Key -> Int -> Pitch
 > getRelPosInKey tone key pos = getRelPosInMode tone (getCorrespondingMode tone key) pos
@@ -97,11 +116,6 @@
 > transposeChordProg chordProg amount = [(trans amount (fst pair), (snd pair)) | pair <- chordProg]
 >
 >
-> --stulen från https://www.haskell.org/haskellwiki/Data.List.Split#Splits_of_known_lengths
-> chunk :: Int -> [a] -> [[a]]
-> chunk _ [] = []
-> chunk n xs = y1 : chunk n y2
->   where
->     (y1, y2) = splitAt n xs
+> 
 >
 >
