@@ -33,7 +33,8 @@ stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 		
 stateOfMind botBrain = do
 		r <- randomIO :: IO Float
-		let phrasePair = [(map2 (id, pick (r)) botBrainPair) | botBrainPair <- botBrain]
+		let phrasePair = map (map2 (id, pick r)) botBrain
+		--let phrasePair = [(map2 (id, pick (r)) botBrainPair) | botBrainPair <- botBrain]
 		--print phrasePair
 		return $ rulesApply phrasePair
 
