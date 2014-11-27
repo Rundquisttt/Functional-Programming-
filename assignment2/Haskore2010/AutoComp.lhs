@@ -11,14 +11,23 @@
 > type Chord = [Pitch]
 >
 > data Mode = Ionian | Dorian | Phrygian | Lydian | Mixolydian | Aeolian | Major | Minor deriving (Eq, Show, Enum)
-> 
+>
+>
+> --- Main functions ---------------------------- 
 > autoComp :: BassStyle -> Key -> ChordProgression -> Music
 > autoComp style key chordProgression = chord [autoBass style key chordProgression, autoChord key chordProgression]
 >
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music 
 > autoBass style key chordProgression = line [cut (snd pair) (getPattern (fst pair) key style) | pair <- transposeChordProg chordProgression (-12)] 
 >													
+> autoChord :: Key -> ChordProgression -> Music 
+> autoChord key chordProgression = line $ optimize key chordProgression Nothing where
+>	optimize key [] _ = []	
+>	optimize key (pair:chordProg) Nothing = chordToMusic (basicChord (fst pair) key) (snd pair) : optimize key chordProg (Just (basicChord (fst pair) key))
+>	optimize key (pair:chordProg) (Just prev) = chordToMusic (optimalChord (fst pair) key prev) (snd pair) : optimize key chordProg (Just (optimalChord (fst pair) key prev))
 > 
+> ---------------------------------------------------------------------------
+>
 > getPattern :: Pitch -> Key -> BassStyle -> Music
 > getPattern p key Basic = (Note p hn []) :+: (Note (getRelPosInKey p key 5) hn [])
 > getPattern p key Calypso = times' 2 (Rest qn :+: Note p en [] :+: Note (getRelPosInKey p key 3) en [])
@@ -26,15 +35,9 @@
 >
 >
 > times'  1    m = m
-> times' n m = m :+: (times' (n - 1) m) --TODO remove
+> times' n m = m :+: (times' (n - 1) m) 
 > 
 >
-> autoChord :: Key -> ChordProgression -> Music 
-> --autoChord key chordProgression = line $ map (flip buildChord key) chordProgression
-> autoChord key chordProgression = line $ optimize key chordProgression Nothing where
->	optimize key [] _ = []	
->	optimize key (pair:chordProg) Nothing = chordToMusic (basicChord (fst pair) key) (snd pair) : optimize key chordProg (Just (basicChord (fst pair) key))
->	optimize key (pair:chordProg) (Just prev) = chordToMusic (optimalChord (fst pair) key prev) (snd pair) : optimize key chordProg (Just (optimalChord (fst pair) key prev))
 >
 >  -- help functions for optimizing the phrasing of the chords ---------------------------------------
 >

@@ -24,11 +24,11 @@
 > v2a = Note (G, 5) qn [] :+: Note (G, 5) qn [] :+: Note (F, 5) qn [] :+: Note (F, 5) qn [] :+: Note (E, 5) qn [] :+: Note (E, 5) qn [] :+: Note (D, 5) hn []
 > v2 = times 2 v2a
 > --chordprogression
-> c1a = [((C, 3), wn),((F, 3), hn),((C, 3), hn)]
-> c1b = [((G, 3), hn),((C, 3), hn)]
+> c1a = [((C, 4), wn),((F, 4), hn),((C, 4), hn)]
+> c1b = [((G, 4), hn),((C, 4), hn)]
 > c1 = c1a ++ c1b ++ c1b
 >
-> c2a = [((C, 3), hn), ((G, 3), hn)]
+> c2a = [((C, 4), hn), ((G, 4), hn)]
 > c2 = c2a ++ c2a ++ c2a ++ c2a
 >
 > twinkleChords = c1 ++ c2 ++ c1

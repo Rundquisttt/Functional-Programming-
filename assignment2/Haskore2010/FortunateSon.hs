@@ -34,12 +34,12 @@
  chordProgression = foldr1 (++) $ take 4 $ repeat chordProgPattern 
 
 
- mainVoice = {-(times 2 mvr) :+:-} mv1 :+: mv2 
+ mainVoice = (times 2 mvr) :+: mv1 :+: mv2 
  
  
- fsCalypso = autoComp Boogie (G, Mixolydian) chordProgression {-:=: intro-} :=: mainVoice
+ fsCalypso = autoComp Boogie (G, Mixolydian) chordProgression :=: intro :=: mainVoice
  -- Putting it all together:
- fortunateSon = Instr "sax" (Tempo 2 (Phrase [Dyn SF] fsCalypso))
+ fortunateSon = Instr "piano" (Tempo 2 (Phrase [Dyn SF] fsCalypso))
 
 
 
