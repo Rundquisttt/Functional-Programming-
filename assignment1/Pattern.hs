@@ -64,9 +64,8 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply wildcard f str pair = mmap f1 (mmap f f2)
-		    	       	   	  where f1 = substitute wildcard (snd pair)
-					  	f2 = (match wildcard (fst pair) str)
+ 
+transformationApply wildcard f str pair = mmap (substitute wildcard (snd pair) . f) $ match wildcard (fst pair) str
  
 {- TO BE WRITTEN -}
 

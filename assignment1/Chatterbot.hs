@@ -25,8 +25,6 @@ type BotBrain = [(Phrase, [Phrase])]
 
 
 --------------------------------------------------------
---generatePhrasePairs :: BotBrain -> [PhrasePair]
---generatePhrasePairs botBrain = [(map2 (id, pick (rollDice)) botBrainPair) | botBrainPair <- botBrain]
 
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 {- TO BE WRITTEN -}
@@ -44,11 +42,6 @@ reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
 --reflect [] = []
 reflect = map $ try $ flip lookup reflections 
---reflect (phrase:phrases) = reflectHelp phrase reflections : reflect phrases
-
---reflectHelp :: String -> [(String, String)] -> String
---reflectHelp word [] = word
---reflectHelp word (pair:pairs) = if(word == (fst $ pair)) then (snd $ pair) else reflectHelp word pairs
 
 						
 reflections =
@@ -86,8 +79,7 @@ stringToPhrase :: [String] -> [Phrase]
 stringToPhrase stringList = [ words string | string <- stringList]
 
 rulesCompile :: [(String, [String])] -> BotBrain
-{- TO BE WRITTEN -}
---rulesCompile stringBotBrain = [map2 ((words . map toLower), stringToPhrase) pair | pair <- stringBotBrain] 
+{- TO BE WRITTEN -} 
 rulesCompile = map (map2 ((words . map toLower), stringToPhrase))
 
 --------------------------------------
