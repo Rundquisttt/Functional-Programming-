@@ -116,4 +116,3 @@ reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 reductionsApply reduc = fix $ try $ transformationsApply "*" id reduc
 
 
-
