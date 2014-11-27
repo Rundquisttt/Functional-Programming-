@@ -42,12 +42,13 @@ rulesApply = try . (transformationsApply "*" reflect)
 
 reflect :: Phrase -> Phrase
 {- TO BE WRITTEN -}
-reflect [] = []
-reflect (phrase:phrases) = reflectHelp phrase reflections : reflect phrases
+--reflect [] = []
+reflect = map $ try $ flip lookup reflections 
+--reflect (phrase:phrases) = reflectHelp phrase reflections : reflect phrases
 
-reflectHelp :: String -> [(String, String)] -> String
-reflectHelp word [] = word
-reflectHelp word (pair:pairs) = if(word == (fst $ pair)) then (snd $ pair) else reflectHelp word pairs
+--reflectHelp :: String -> [(String, String)] -> String
+--reflectHelp word [] = word
+--reflectHelp word (pair:pairs) = if(word == (fst $ pair)) then (snd $ pair) else reflectHelp word pairs
 
 						
 reflections =
@@ -113,7 +114,6 @@ reduce = reductionsApply reductions
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
 {- TO BE WRITTEN -}
 reductionsApply reduc = fix $ try $ transformationsApply "*" id reduc
-
 
 
 
