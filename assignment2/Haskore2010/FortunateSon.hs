@@ -15,18 +15,29 @@
  intro = times 2 $ i1a :+: i1b :+: i1c :+: i1d
  --main voice
  
- mvr = times 4 Rest wn
- mv1a = Rest en :+: Note (G, 5) en [] :+: Note (G, 5) en [] :+: Note (F, 5) en [] :+: Note (G, 5) qn [] :+: Rest qn
- mv1b = Note (A, 5) en [] :+: Note (G, 5) en [] :+: Note (G, 5) en [] :+: Note (F, 5) en [] :+: Note (G, 5) qn [] :+: Rest qn
- mv1c = Rest en :+:
- --chordprogression
+ mvr = times 4 $ Rest wn
  
- chordProgression = [((G, 4), wn), ((F, 4), wn), ((C, 4), wn), ((G, 4), wn)]
+ mv1a = Rest en :+: Note (G, 5) en [] :+: Note (G, 5) en [] :+: Note (F, 5) sn [] :+: Note (G, 5) dqn [] :+: Rest den
+ mv1b = Note (A, 5) den [] :+: Note (G, 5) en [] :+: Note (G, 5) en [] :+: Note (F, 5) en [] :+: Note (G, 5) qn [] :+: Rest den
+ mv1c = Rest en :+: Note (A,5) en [] :+: Note (G,5) qn [] :+: (Tempo (4/3) $ Note (G,5) qn []) :+: (Tempo (4/3) $ Note (G,5) qn []) :+: (Tempo (4/3) $ Note (G,5) qn [])
+ mv1d = Note (G, 5) qn [] :+: Rest qn :+: Rest hn
+ mv1 = mv1a :+: mv1b :+: mv1c :+: mv1d
+
+ mv2a = Rest qn :+: Note (G,5) en [] :+: Note (G,5) en [] :+: Note (G,5) qn [] :+: {-Note (G,5) qn [] :+:-} Rest qn
+ mv2b = Rest qn :+: Note (A,5) qn [] :+: Note (A,5) qn []  :+: Note (G, 5) qn []
+ mv2c = Rest en :+: Note (A,5) en [] :+: Note (G,5) qn [] :+: (Tempo (4/3) $ Note (G,5) qn []) :+: (Tempo (4/3) $ Note (G,5) qn []) :+: (Tempo (4/3) $ Note (G,5) qn [])
+ mv2d = Note (G, 5) qn [] :+: Rest qn :+: Rest hn
+ mv2 = mv2a :+: mv2b :+: mv2c :+: mv2d
+ 
+ --chordprogression
+ chordProgPattern = [((G, 4), wn), ((F, 4), wn), ((C, 4), wn), ((G, 4), wn)]
+ chordProgression = foldr1 (++) $ take 4 $ repeat chordProgPattern 
 
 
- bassLine = chordProgToMusic chordProgression
- --mainVoice = v1 :+: v2 :+: v1
- fsCalypso = autoComp Boogie (G, Mixolydian) chordProgression :=: intro :=: mainVoice
+ mainVoice = {-(times 2 mvr) :+:-} mv1 :+: mv2 
+ 
+ 
+ fsCalypso = autoComp Boogie (G, Mixolydian) chordProgression {-:=: intro-} :=: mainVoice
  -- Putting it all together:
  fortunateSon = Instr "sax" (Tempo 2 (Phrase [Dyn SF] fsCalypso))
 
