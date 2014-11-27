@@ -36,6 +36,7 @@ singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 singleWildcardMatch (p:ps) (s:ss) = mmap (const [s]) (match p ps ss)
 {- TO BE WRITTEN -}
 
+
 longerWildcardMatch (p:ps) (s:ss) = mmap ([s]++) (match p (p:ps) ss)
 
 
