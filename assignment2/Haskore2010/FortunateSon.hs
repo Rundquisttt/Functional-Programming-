@@ -14,7 +14,7 @@
  i1d = Note (B, 5) en [] :+: Note (D, 6) qn [] :+: Rest en :+: Note (B, 5) en [] :+: Note (G, 5) qn [] :+: Rest en
  intro = times 2 $ i1a :+: i1b :+: i1c :+: i1d
  --main voice
- 
+ -- Sångslingan blev inte så bra som vi hade hoppats. Därför är bara introt med i den här versionen.
  mvr = times 4 $ Rest wn
  
  mv1a = Rest en :+: Note (G, 5) en [] :+: Note (G, 5) en [] :+: Note (F, 5) sn [] :+: Note (G, 5) dqn [] :+: Rest den
@@ -31,13 +31,13 @@
  
  --chordprogression
  chordProgPattern = [((G, 4), wn), ((F, 4), wn), ((C, 4), wn), ((G, 4), wn)]
- chordProgression = foldr1 (++) $ take 4 $ repeat chordProgPattern 
+ chordProgression = foldr1 (++) $ take 2 $ repeat chordProgPattern 
 
 
  mainVoice = (times 2 mvr) :+: mv1 :+: mv2 
  
  
- fsCalypso = autoComp Boogie (G, Mixolydian) chordProgression :=: intro :=: mainVoice
+ fsCalypso = autoComp Boogie (G, Mixolydian) chordProgression :=: intro -- :=: mainVoice
  -- Putting it all together:
  fortunateSon = Instr "piano" (Tempo 2 (Phrase [Dyn SF] fsCalypso))
 
