@@ -1,38 +1,88 @@
+Uppgift 2 Funktionell musik EDAN40
+
+Uppgiften var att skriva ett program som utifrån en given 'BassStyle', en tonart och en ackordföljd genererar
+komp och ett basmönster till ett musikstycke.
+
+För att testa vår lösning av uppgiften i GHCI gör ett av följande alternativ för att skapa en mid-fil med
+musik:
+	
+	Twinkle Twinkle Little Star:
+		:l Twinkle.lhs
+		test ttls
+
+
+	Fortunate Son:
+		:l FortunateSon.hs
+		test fortunateSon
+
+Kör sedan filen test.mid som skapas.
+
 > module AutoComp where 
 > import Haskore hiding (Key, Mode, Minor, Major)
 > import Data.List
 >
+
+Key är ett par bestående av en tonhöjd och en mod. Key är den tonart ett musikstycket går i, det betyder att
+noterna som främst används tillhör den skalan.
+
+>
 > type Key = (PitchClass, Mode)
+>
+
+Det finns många olika typer av 'BassStyle'. Vi har nöjt oss med att definiera tre stycken olika som kan
+användas för att generera ett basmönster, Basic bass, Calypso bass och Boogie bass.
+
 >
 > data BassStyle = Basic | Calypso | Boogie
 >
+> getPattern :: Pitch -> Key -> BassStyle -> Music
+> getPattern p key Basic = (Note p hn []) :+: (Note (getRelPosInKey p key 5) hn [])
+> getPattern p key Calypso = times' 2 (Rest qn :+: Note p en [] :+: Note (getRelPosInKey p key 3) en [])
+> getPattern p key Boogie = times' 2 (Note p en [] :+: Note (getRelPosInKey p key 5) en [] :+: Note (getRelPosInKey p key 6) en [] :+: Note (getRelPosInKey p key 5) en [])
+>
+
+En ackordföljd, ChordProgression, har vi definerat som en följd av par med tonhöjd (Pitch) och längd (Dur). Vi valde att ha med Dur också eftersom
+vi tyckte att det var viktigt.
+
+>
 > type ChordProgression = [(Pitch, Dur)]
+>
+
+Ett ackord är en följd av noter från en skala. T.ex. är ackordet durtreklang den första, den tredje och den
+femte noten från en given skala.
+
 >
 > type Chord = [Pitch]
 >
+
+Det finns sju olika skalor. Alla skalor har samma mönster men olika noter som bas, skalorna är alltså
+endast förskjutningar av varandra. Vi använder endast sex av skalorna. Ionian och Major är olika
+benämningar av samma skala. Även Aeolian och Minor är samma skala.
+ 
+>
 > data Mode = Ionian | Dorian | Phrygian | Lydian | Mixolydian | Aeolian | Major | Minor deriving (Eq, Show, Enum)
 >
+>
+> getScale mode		| mode == Ionian || mode == Major 	= [0,2,4,5,7,9,11]
+> 					| mode == Dorian 					= [0,2,3,5,7,9,10]
+>					| mode == Phrygian 					= [0,1,3,5,7,8,10]
+>					| mode == Lydian 					= [0,2,4,6,7,9,11]
+>					| mode == Mixolydian 				= [0,2,4,5,7,9,10] 
+>					| mode == Aeolian || mode == Minor  = [0,2,3,5,7,8,10]
+>
 
-Programmet används för att autogenerera komp till ens musikstycke givet en 'BassStyle', en tonart och en ackordföljd. Den ger då tillbaka en
-Music. En ackordföljd defineras som en följd av par med Pitch och Dur. Vi valde att ha med Dur också eftersom vi tyckte att det var viktigt. 
-För att hitta rätt toner för basmönstren och ackord så har vi kollat på vart i tonarten varje given ton ligger och sedan bildat en skala med tonerna som
-utgår från tonen i tonarten. Alltså tagit fram den mod som svarar mot tonen i tonarten. Ifall tonen inte finns med i tonarten så kommer alla försök att 
-göra något relativt till den att bara ge tillbaka samma ton.
-
-För att testa:
-
-:l Twinkle.lhs
-test ttls
-kör sedan test.mid
-
-:l FortunateSon.hs
-test fortunateSon
-kör sedan test.mid
+Funktionen autoBass tar en 'BassStyle', en tonart och en ackordföljd och skapar utifrån det en Music genom
+att kombinera ett basmönster och en ackordföljd. Music kan tolkas av Haskore. För att hitta rätt toner för
+basmönstren och ackord så har vi kollat på var i tonarten varje given ton ligger och sedan bildat en skala
+med tonerna som utgår från tonen i tonarten. Alltså tagit fram den mod som svarar mot tonen i tonarten. Ifall
+tonen inte finns med i tonarten så kommer alla försök att göra något relativt till den att bara ge tillbaka
+samma ton.
 
 >
 > --- Main functions ---------------------------- 
 > autoComp :: BassStyle -> Key -> ChordProgression -> Music
 > autoComp style key chordProgression = chord [autoBass style key chordProgression, autoChord key chordProgression]
+>
 >
 > autoBass :: BassStyle -> Key -> ChordProgression -> Music 
 > autoBass style key chordProgression = line [cut (snd pair) (getPattern (fst pair) key style) | pair <- transposeChordProg chordProgression (-12)] 
@@ -45,10 +95,6 @@ kör sedan test.mid
 > 
 > ---------------------------------------------------------------------------
 >
-> getPattern :: Pitch -> Key -> BassStyle -> Music
-> getPattern p key Basic = (Note p hn []) :+: (Note (getRelPosInKey p key 5) hn [])
-> getPattern p key Calypso = times' 2 (Rest qn :+: Note p en [] :+: Note (getRelPosInKey p key 3) en [])
-> getPattern p key Boogie = times' 2 (Note p en [] :+: Note (getRelPosInKey p key 5) en [] :+: Note (getRelPosInKey p key 6) en [] :+: Note (getRelPosInKey p key 5) en [])
 >
 >
 > times'  1    m = m
@@ -63,9 +109,12 @@ kör sedan test.mid
 >	where getNote pair pos key = Note (getRelPosInKey (fst pair) key pos) (snd pair) []
 >
 
-optimalChord hittar det 'optimala' ackordet givet en ton, en tonart och det förra ackordet. 
-Ackordet kommer alltid att bli det samma givet en ton och en tonart. 'Phrasingen' i ackordet påverkas av 
-det tidigare ackordet.
+
+
+optimalChord hittar det 'optimala' ackordet givet en ton, en tonart och det förra ackordet. Ackordet kommer
+alltid att bli det samma givet en ton och en tonart. 'Phrasingen' i ackordet påverkas av det tidigare
+ackordet. Det optimala ackordet är det som har kortast avstånd till det tidigare ackordet. Avtåndet mellan
+två ackord ges av chordDistance.
 
 >
 > optimalChord :: Pitch -> Key -> Chord -> Chord
@@ -75,23 +124,32 @@ det tidigare ackordet.
 >						| otherwise = finder cho cs
 >
 
-chordVariants ger tar ett ackord, t.ex. C. ((C,2), (E,2), (G,2)). Och sedan ger det alla varianter av phrasing av det ackordet som
-'slutna'. Det ger alltså ((E,1), (G,1), (C,2)), ((G,1), (C,2), (E,2)), ((C,2), (E,2), (G,2)), ((E,2), (G,2), (C,3)) och ((G,2), (C,3), (E,3))
+chordVariants tar ett ackord, t.ex. C. ((C,2), (E,2), (G,2)). Och sedan ger det alla varianter av phrasing
+av det ackordet som 'slutna'. Exemplet ger alltså ackorden:
+	
+	((E,1), (G,1), (C,2))
+	((G,1), (C,2), (E,2))
+	((C,2), (E,2), (G,2))
+	((E,2), (G,2), (C,3))
+	((G,2), (C,3), (E,3))
 
+>
 > chordVariants :: Pitch -> Key -> [Chord]
 > chordVariants pit key = zipWith id variants $ take (length variants) $ repeat $ basicChord pit key
 > 		where 	variants = [rephraseChordDown . rephraseChordDown, rephraseChordDown, id, rephraseChordUp, rephraseChordUp . rephraseChordUp]
 > 
 
-basicChord tar en ton och en tonart och genererar ett ackord av tonerna i tonarten med den ursprungliga tonen i basen.
+basicChord tar en ton och en tonart och genererar ett ackord av tonerna i tonarten med den ursprungliga
+tonen i basen.
 
 >
 > basicChord :: Pitch -> Key -> Chord
 > basicChord pit key = [getRelPosInKey pit key 1, getRelPosInKey pit key 3, getRelPosInKey pit key 5]
 >
 
-rephraseChord tar ett ackord och ändrar 'phrasingen' i det antingen uppåt eller neråt genom att antingen ta den mörkaste tonen och höja den en oktav
-eller genom att ta den ljusaste tonen och sänka den en oktav. Ordningen i ackordet ändras även så att tonerna ligger i ordning efter tonhöjd. 
+rephraseChord tar ett ackord och ändrar 'phrasingen' i det antingen uppåt eller neråt genom att antingen ta
+den mörkaste tonen och höja den en oktav eller genom att ta den ljusaste tonen och sänka den en oktav.
+Ordningen i ackordet ändras även så att tonerna ligger i ordning efter tonhöjd.
 rephraseChordDown . rephraseChordUp = id
 
 >
@@ -100,8 +158,9 @@ rephraseChordDown . rephraseChordUp = id
 > rephraseChordDown = reverse . (rotate $ trans (-12)) . reverse
 >
 
-chordDistance ger ett numeriskt värde på 'avståndet' mellan två ackord. Den gör det genom att kontrollera avstånden mellan de olika tonerna i ackorden.
-Detta gör den i olika ordningnar och resturnerar sedan värdet från den mappning som gav det lägsta 'avståndet'.
+chordDistance ger ett numeriskt värde på 'avståndet' mellan två ackord. Den gör det genom att kontrollera
+avstånden mellan de olika tonerna i ackorden. Detta gör den i olika ordningnar och resturnerar sedan värdet
+från den mappning som gav det kortaste 'avståndet'.
 
 >
 > chordDistance :: Chord -> Chord -> Int
@@ -114,17 +173,8 @@ Detta gör den i olika ordningnar och resturnerar sedan värdet från den mappni
 > chordToMusic :: Chord -> Dur -> Music
 > chordToMusic cho dur = chord [Note pit dur [] | pit <- cho]
 >
-> --moder, tonarter och sånt
-> getScale mode		| mode == Ionian || mode == Major 	= [0,2,4,5,7,9,11]
-> 					| mode == Dorian 					= [0,2,3,5,7,9,10]
->					| mode == Phrygian 				= [0,1,3,5,7,8,10]
->					| mode == Lydian 					= [0,2,4,6,7,9,11]
->					| mode == Mixolydian 				= [0,2,4,5,7,9,10] 
->					| mode == Aeolian || mode == Minor = [0,2,3,5,7,8,10]
 >
 > 
-> 
->
 
 keyToNotes ger en lista med PitchClass givet en tonart. (G, Major) ger t.ex. [G, A, B, C, D, E, Fs]
 
@@ -134,7 +184,8 @@ keyToNotes ger en lista med PitchClass givet en tonart. (G, Major) ger t.ex. [G,
 >
 >
 
-sameTones kontrollerar ifall två listor med PitchClass innehåller samma objekt. Den ger True även ifall de ligger i olika ordning.
+sameTones kontrollerar ifall två listor med PitchClass innehåller samma objekt. Den ger True även ifall de
+ligger i olika ordning.
 
 > sameTones :: [PitchClass] -> [PitchClass] -> Bool
 > sameTones [] sndMode = True
@@ -142,8 +193,8 @@ sameTones kontrollerar ifall två listor med PitchClass innehåller samma objekt
 >										| otherwise = False					
 >
 
-correspondingKeys kontrollerar ifall två tonarter innehåller samma toner. T.ex så ger (C, Major) och (G, Mixolydian) True.
-Medan (C, Major) och (G, Major) False.
+correspondingKeys kontrollerar ifall två tonarter innehåller samma toner. T.ex så ger (C, Major) och
+(G, Mixolydian) True. Medan (C, Major) och (G, Major) False.
 
 >
 > correspondingKeys :: Key -> Key -> Bool
@@ -152,8 +203,8 @@ Medan (C, Major) och (G, Major) False.
 > 
 >
 
-getCorrespondingMode hämtar ut den Mod som svarar mot den givna tonen i den givna tonarten. Om tonen inte finns med i tonarten
-så returneras Nothing.
+getCorrespondingMode hämtar ut den Mod som svarar mot den givna tonen i den givna tonarten. Om tonen inte
+finns med i tonarten så returneras Nothing.
 
 > getCorrespondingMode :: Pitch -> Key -> Maybe Mode
 > getCorrespondingMode tone key = helpF key tone [Ionian .. Aeolian] where
@@ -163,9 +214,9 @@ så returneras Nothing.
 >
 >
 
-GetRelPosInKey är en central funktion. Den används för att stega sig igenom en skala från en given ton i en given tonart. 
-T.ex. om man tar tonen G i tonarten C Major och vill ha den femte tonen (kvinten) så anropar man GetRelPosInKey (G,3) (C, Major) 5 och så får 
-man ut (D, 4).
+GetRelPosInKey är en central funktion. Den används för att stega sig igenom en skala från en given ton i en
+given tonart.  T.ex. om man tar tonen G i tonarten C Major och vill ha den femte tonen (kvinten) så anropar
+man GetRelPosInKey (G,3) (C, Major) 5 och så får man ut (D, 4).
 
 >
 > getRelPosInKey :: Pitch -> Key -> Int -> Pitch
@@ -173,10 +224,11 @@ man ut (D, 4).
 >
 >
 
-getRelPosInMode är en hjälpfunktion till getRelPosInKey. Den hanterar ifall tonen inte finns i tonarten, då ger den bara tillbaka den ursprungliga
-tonen. Ifall antalet steg som man vill gå uppåt är mer än 7 så adderas en oktav (12 semitoner). Sedan tar man antalet steg modulo 7 och hämtar ut den 
-positionen i skalan och adderar motsvarande antal semitoner. Eftersom musiker (oftast) inte är programmerare så betyder pos 1 här den första positionen i 
-skalan. I stället för att pos 0 är den första positionen i skalan.
+getRelPosInMode är en hjälpfunktion till getRelPosInKey. Den hanterar ifall tonen inte finns i tonarten, då
+ger den bara tillbaka den ursprungliga tonen. Ifall antalet steg som man vill gå uppåt är mer än 7 så adderas
+en oktav (12 semitoner). Sedan tar man antalet steg modulo 7 och hämtar ut den positionen i skalan och
+adderar motsvarande antal semitoner. Eftersom musiker (oftast) inte är programmerare så betyder pos 1 här den
+första positionen i skalan. I stället för att pos 0 är den första positionen i skalan.
 
 >
 > getRelPosInMode :: Pitch -> Maybe Mode -> Int -> Pitch
